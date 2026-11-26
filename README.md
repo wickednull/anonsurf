@@ -1,40 +1,186 @@
-# Build
-- Build dependencies: cmake, g++, golang-go, git, qt6-base-dev, qt6-declarative-dev, qml6-module-qtquick-shapes
-- Runtime dependencies: bleachbit, nyx, sudo, tor, iptables, network-manager, procps, systemd
-- Commands to build:
-1. `git clone https://gitlab.com/parrotsec/packages/anonsurf/`
-2. `cd anonsurf && make build && sudo make install`
-3. `make check`
+# AnonSurf for Kali Linux
 
-# Source layout
-- `src/cmd/`: Go command-line entry points.
-- `src/internal/anonsurf/`: lifecycle orchestration and transactional recovery.
-- `src/internal/dns/`, `firewall/`, `ipv6/`, `tor/`: network domains.
-- `src/internal/command/`, `fileops/`, `systemd/`: operating-system adapters.
-- `gui/`: Qt 6/QML interface for KDE Plasma.
-- `gui/src/application/`: GUI startup and single-instance activation.
-- `gui/src/anonsurf/`: GUI state and AnonSurf action orchestration.
-- `gui/src/cli/`, `systemd/`: command-line and systemd D-Bus adapters.
-- `gui/src/tray/`, `notifications/`: tray integration and desktop notifications.
-- `icons/`: AnonSurf and Nyx logos retained for the future interface.
+[![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
+[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali2-blue)](https://github.com/wickednull/anonsurf/releases)
+[![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
+[![License](https://img.shields.io/badge/license-GPL--3.0%2B-green)](LICENSE)
+[![Lintian](https://img.shields.io/badge/lintian-clean-brightgreen)](https://github.com/wickednull/anonsurf/releases)
+[![Tests](https://img.shields.io/badge/tests-Kali%20VM%20%2B%20host-brightgreen)](https://github.com/wickednull/anonsurf)
+[![Stars](https://img.shields.io/github/stars/wickednull/anonsurf.svg?style=social)](https://github.com/wickednull/anonsurf/stargazers)
+[![Contributors](https://img.shields.io/github/contributors/wickednull/anonsurf.svg)](https://github.com/wickednull/anonsurf/graphs/contributors)
 
-Interrupted sessions are recovered automatically at boot before Tor starts.
-Lifecycle progress is published to systemd and shown by the interactive CLI.
+A Kali-native port of [Parrot AnonSurf 6](https://gitlab.com/parrotsec/packages/anonsurf/).
+AnonSurf routes supported TCP traffic and DNS lookups through Tor using transparent
+proxying, with a kill-switch, transactional rollback, and boot recovery after a crash.
 
-The Qt interface stays unprivileged: it reads the CLI's JSON status and sends
-authorized lifecycle requests through systemd D-Bus. Build it with `make gui`
-and run `build/gui/anonsurf-gui`.
+> **Not affiliated with Parrot Security.** This repository ships a Kali-branded
+> rebuild of the upstream source with a few real-world fixes.
 
-- List of default bridges are at https://gitlab.torproject.org/tpo/anti-censorship/team/-/wikis/Default-Bridges
+---
 
-# Connection handling
-Existing direct TCP/UDP connections to public IPv4 destinations are blocked
-when routing starts, except for Tor-owned traffic and the DHCP exception.
-They are not migrated into Tor; TCP applications must reconnect.
-Tor carries supported TCP traffic and DNS lookups, not arbitrary UDP.
-UDP DNS requests use Tor's UDP-only DNSPort. TCP DNS requests to public
-IPv4 resolvers use TransPort, following the same routing as other TCP traffic.
-Private-network and loopback routing exceptions remain in effect.
+## Features
 
-# Thank to
-- Vivek Gite, who wrote tutorial of hook script for dhclient https://www.cyberciti.biz/faq/dhclient-etcresolvconf-hooks/
+- **Kali-native branding** — `org.kali.Anonsurf` desktop/D-Bus/QML identifiers.
+- **No package collision** — the DNS helper is installed as
+  `/usr/lib/anonsurf/dnstool` with an `anonsurf-dnstool` symlink, so it does not
+  conflict with `krbrelayx`.
+- **Transactional start** — firewall, IPv6, DNS and `torrc` are restored if any
+  step fails.
+- **Boot recovery** — `anonsurf-recovery.service` is explicitly enabled because
+  Kali's default systemd preset disables all services.
+- **Bootstrap-aware** — DNS is switched to Tor only after Tor finishes
+  bootstrapping, so a slow first start never leaves you with a dead resolver.
+- **Unprivileged GUI** — the Qt 6/QML interface talks to systemd over D-Bus with
+  polkit, rather than running as root.
+- **Clean packaging** — Debian `3.0 (quilt)` source, clean binary and source
+  lintian, verified `dpkg-source -x` rebuild.
+
+---
+
+## Requirements
+
+- Kali Linux **Rolling**, updated to current `kali-rolling` packages.
+- `amd64` architecture.
+- Qt **6.11.2+** for the GUI. The frozen `kali-last-snapshot` cloud image ships
+  Qt 6.10.2 and cannot run the GUI; run `apt update && apt full-upgrade` first.
+- Root via `sudo` for installation and lifecycle changes.
+
+The installer pulls in `tor`, `nyx`, `iptables`, `network-manager`, `procps`,
+`sudo`, and the Qt/QML runtime packages automatically.
+
+---
+
+## Quick install
+
+```bash
+git clone https://github.com/wickednull/anonsurf.git
+cd anonsurf
+./install.sh
+```
+
+The script verifies `SHA256SUMS`, then installs all four `.deb` packages from
+`dist/` with `apt`.
+
+### Manual install
+
+```bash
+cd anonsurf
+sha256sum -c SHA256SUMS
+sudo apt update
+sudo apt install -y ./dist/*.deb
+```
+
+---
+
+## Usage
+
+```bash
+anonsurf status --json        # health, DNS mode, Tor state
+sudo anonsurf start           # route through Tor
+sudo anonsurf stop            # restore clearnet
+sudo anonsurf restart         # rebuild routes
+sudo anonsurf changeid        # request a new Tor identity
+anonsurf ip --json            # verify public IP / Tor exit
+anonsurf monitor              # Nyx Tor monitor
+anonsurf boot enable          # enable startup integration
+anonsurf boot disable         # disable startup integration
+```
+
+Launch the desktop interface with `anonsurf-gui`, or open **AnonSurf** from the
+Kali application menu. While active, `anonsurf status` reports DNS mode `tor`.
+
+---
+
+## What the packages contain
+
+| Package | Purpose |
+|---|---|
+| `anonsurf` | Daemon, firewall/DNS/IPv6 logic, systemd units, config |
+| `anonsurf-cli` | `anonsurf` command, man page, shell completions |
+| `anonsurf-gui` | Qt 6/QML graphical interface |
+| `anonsurf-gtk` | Empty transitional package for old GTK installs |
+
+The source release in `dist/` consists of the upstream orig tarball, the `.dsc`,
+and the Debian tarball containing all Kali packaging patches.
+
+---
+
+## Verify the download
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+Every binary and source artifact in `dist/` is listed in `SHA256SUMS`.
+
+---
+
+## Build from source
+
+```bash
+sudo apt install -y debhelper cmake g++ golang-go bash-completion \
+  qt6-base-dev qt6-declarative-dev qml6-module-qtquick-shapes
+
+dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali2.dsc
+cd anonsurf-6.0.1+parrot2
+dpkg-buildpackage -us -uc -b
+```
+
+`dpkg-buildpackage -S -us -uc` rebuilds the source package instead.
+
+---
+
+## Troubleshooting
+
+**No DNS immediately after starting.** The daemon now waits for Tor bootstrap
+and prints `Waiting for Tor bootstrap (N%)`. It only writes `nameserver
+127.0.0.1` once Tor is ready. First bootstrap can take several minutes on a
+fresh machine.
+
+**Browser says `DNS_PROBE_POSSIBLE` while AnonSurf is active.** Disable Secure
+DNS / DNS-over-HTTPS in Chrome or Brave (`chrome://settings/security` or
+`brave://settings/security`), then restart the browser. DoH bypasses the system
+resolver that AnonSurf controls.
+
+**A specific site still will not load.** Some sites block Tor exit nodes. Test
+with `https://kali.org` first; if that works, the routing is healthy.
+
+**Recovery after a hard shutdown.** Check with:
+
+```bash
+systemctl status anonsurf-recovery.service
+```
+
+It is enabled at install time and restores `torrc`, DNS, IPv6 and firewall state
+before Tor starts at boot.
+
+**Full rollback:**
+
+```bash
+sudo anonsurf stop
+sudo apt purge -y anonsurf anonsurf-cli anonsurf-gui anonsurf-gtk
+sudo apt --fix-broken install
+```
+
+---
+
+## Notes on routing
+
+- TCP is redirected to Tor's `TransPort` (`127.0.0.1:9040`).
+- UDP DNS is redirected to Tor's `DNSPort` (`127.0.0.1:53`).
+- IPv6 is disabled while active and restored on stop.
+- Private networks and loopback are exempt from redirection.
+- Existing connections are not migrated into Tor; applications must reconnect.
+- Arbitrary UDP is not carried through Tor.
+
+---
+
+## Credits
+
+Based on the original AnonSurf work by the Parrot Security team. Kali packaging,
+branding, and the bootstrap/recovery fixes are maintained here.
+
+## License
+
+GPL-3.0+ as declared in the packaged copyright metadata. See [LICENSE](LICENSE)
+for the upstream license text.
