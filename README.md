@@ -4,7 +4,7 @@
 
 
 [![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
-[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali4-blue)](https://github.com/wickednull/anonsurf/releases)
+[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali6-blue)](https://github.com/wickednull/anonsurf/releases)
 [![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0%2B-green)](LICENSE)
 [![Lintian](https://img.shields.io/badge/lintian-clean-brightgreen)](https://github.com/wickednull/anonsurf/releases)
@@ -16,8 +16,12 @@ A Kali-native port of [Parrot AnonSurf 6](https://gitlab.com/parrotsec/packages/
 AnonSurf routes supported TCP traffic and DNS lookups through Tor using transparent
 proxying, with a kill-switch, transactional rollback, and boot recovery after a crash.
 
-> **Not affiliated with Parrot Security.** This repository ships a Kali-branded
-> rebuild of the upstream source with a few real-world fixes.
+> **Unofficial project — not affiliated with Kali Linux or Parrot Security.**
+> This is an independently maintained, Kali-branded rebuild of the upstream
+> AnonSurf source. It is **not** affiliated with, endorsed by, sponsored by, or
+> connected to Offensive Security, the Kali Linux project, Parrot Security, or
+> the Parrot Project. All trademarks are the property of their respective
+> owners. See [LEGAL.md](LEGAL.md) for the full disclaimer.
 
 ---
 
@@ -33,10 +37,12 @@ proxying, with a kill-switch, transactional rollback, and boot recovery after a 
   Kali's default systemd preset disables all services.
 - **Bootstrap-aware** — DNS is switched to Tor only after Tor finishes
   bootstrapping, so a slow first start never leaves you with a dead resolver.
-- **Stall and circuit recovery** — if Tor stalls at 10% (`conn_done`) or
-  reports `100%` bootstrap but has no usable general-purpose circuit, it is
-  restarted automatically (up to 3 times). `FascistFirewall 1` keeps guard
-  selection on commonly reachable ports.
+- **Fast stall and circuit recovery** — if Tor stalls at 10% (`conn_done`) for
+  12 seconds, AnonSurf drops the bad guard and rotates circuits immediately,
+  falling back to a full Tor restart only if that does not help. If Tor reports
+  `100%` bootstrap but has no usable general-purpose circuit, it also
+  recovers automatically. `FascistFirewall 1` keeps guard selection on
+  commonly reachable ports.
 - **Unprivileged GUI** — the Qt 6/QML interface talks to systemd over D-Bus with
   polkit, rather than running as root.
 - **Clean packaging** — Debian `3.0 (quilt)` source, clean binary and source
@@ -128,7 +134,7 @@ Every binary and source artifact in `dist/` is listed in `SHA256SUMS`.
 sudo apt install -y debhelper cmake g++ golang-go bash-completion \
   qt6-base-dev qt6-declarative-dev qml6-module-qtquick-shapes
 
-dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali4.dsc
+dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali6.dsc
 cd anonsurf-6.0.1+parrot2
 dpkg-buildpackage -us -uc -b
 ```
@@ -146,10 +152,10 @@ fresh machine.
 
 **Start hangs at `Waiting for Tor bootstrap (10%)`.** Tor has connected to a
 guard relay but cannot complete the handshake with it — usually a dead guard or
-one listening on a port blocked by your network. AnonSurf now detects a stall
-at 10% for 60 seconds, prints `Tor bootstrap stalled at 10%, restarting Tor`,
-and tries again with a fresh guard (up to 3 restarts). `FascistFirewall 1` also
-restricts guards to ports 80/443/8080 to avoid this in the first place.
+one on a port blocked by your network. AnonSurf detects a 12-second stall,
+prints `Tor stalled at 10%, rotating guard`, drops the bad guard and builds new
+circuits. If several rotations fail it restarts Tor automatically.
+`FascistFirewall 1` also restricts guards to ports 80/443 to avoid this.
 
 **Start succeeds but sites will not load.** Tor can report `100%` bootstrap
 yet fail every stream with `waiting for circuit` if its guard is bad. AnonSurf
