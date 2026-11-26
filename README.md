@@ -197,9 +197,7 @@ sudo apt --fix-broken install
 
 ## Credits
 
-Based on the original AnonSurf work by the Parrot Security team. Kali packaging
-is maintained by **wickedNull**; branding and the bootstrap/recovery fixes are
-maintained here.
+Based on the original AnonSurf work by the Parrot Security team.
 
 ## License
 
