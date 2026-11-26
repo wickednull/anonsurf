@@ -1,5 +1,8 @@
 # AnonSurf for Kali Linux
 
+<img width="1024" height="1024" alt="image" src="https://github.com/user-attachments/assets/3dbfffb1-3acf-41cb-9071-82b2f200ae39" />
+
+
 [![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
 [![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali2-blue)](https://github.com/wickednull/anonsurf/releases)
 [![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
