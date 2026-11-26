@@ -2,7 +2,7 @@ Format: 3.0 (quilt)
 Source: anonsurf
 Binary: anonsurf, anonsurf-cli, anonsurf-gui, anonsurf-gtk
 Architecture: any all
-Version: 6.0.1+parrot2-0kali6
+Version: 6.0.1+parrot2-0kali7
 Maintainer: wickedNull <143050906+wickednull@users.noreply.github.com>
 Homepage: https://gitlab.com/parrotsec/packages/anonsurf/
 Standards-Version: 4.7.2
@@ -14,10 +14,10 @@ Package-List:
  anonsurf-gui deb net optional arch=any
 Checksums-Sha1:
  ebc488dd21681e7cdf518cdec8aa8f3e55a3a0bf 197994 anonsurf_6.0.1+parrot2.orig.tar.gz
- 374574b0be611b2a6ef018bfe317d374c9179954 23176 anonsurf_6.0.1+parrot2-0kali6.debian.tar.xz
+ 48dff8929327c66c330c3195c70aa2ae7977dbd4 25740 anonsurf_6.0.1+parrot2-0kali7.debian.tar.xz
 Checksums-Sha256:
  4d8a787703792dddb0541f26806d31b140677da08a69f68e9601d99fc767e41f 197994 anonsurf_6.0.1+parrot2.orig.tar.gz
- 6dd5af4a8e792e9bd3bec634acbd359b1acd9591c83b4aeca35459fee9a1b5f7 23176 anonsurf_6.0.1+parrot2-0kali6.debian.tar.xz
+ 577d4ec190503cd43142b1659c7f24d5e78071dae2a0b2beecc60620b362fd0a 25740 anonsurf_6.0.1+parrot2-0kali7.debian.tar.xz
 Files:
  5d3736b196ce27bd65bdda5889cc0b1a 197994 anonsurf_6.0.1+parrot2.orig.tar.gz
- 29f9863dda47a5a0efd7306e588df32e 23176 anonsurf_6.0.1+parrot2-0kali6.debian.tar.xz
+ bd062a7657b09ce81f69c8edc6111b26 25740 anonsurf_6.0.1+parrot2-0kali7.debian.tar.xz

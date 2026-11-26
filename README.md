@@ -4,7 +4,7 @@
 
 
 [![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
-[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali6-blue)](https://github.com/wickednull/anonsurf/releases)
+[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali7-blue)](https://github.com/wickednull/anonsurf/releases)
 [![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0%2B-green)](LICENSE)
 [![Lintian](https://img.shields.io/badge/lintian-clean-brightgreen)](https://github.com/wickednull/anonsurf/releases)
@@ -39,10 +39,13 @@ proxying, with a kill-switch, transactional rollback, and boot recovery after a 
   bootstrapping, so a slow first start never leaves you with a dead resolver.
 - **Fast stall and circuit recovery** — if Tor stalls at 10% (`conn_done`) for
   12 seconds, AnonSurf drops the bad guard and rotates circuits immediately,
-  falling back to a full Tor restart only if that does not help. If Tor reports
-  `100%` bootstrap but has no usable general-purpose circuit, it also
-  recovers automatically. `FascistFirewall 1` keeps guard selection on
-  commonly reachable ports.
+  falling back to a full Tor restart only if that does not help.
+- **Automatic bridge fallback** — if direct relays are blocked by the local
+  network or ISP for 20 seconds, AnonSurf switches to bundled obfs4 bridges.
+  `obfs4proxy` is installed automatically.
+- **No outage on failed start** — the firewall and DNS switch happen only after
+  Tor has bootstrapped and built a usable circuit, so a blocked start leaves
+  your clearnet connection intact.
 - **Unprivileged GUI** — the Qt 6/QML interface talks to systemd over D-Bus with
   polkit, rather than running as root.
 - **Clean packaging** — Debian `3.0 (quilt)` source, clean binary and source
@@ -134,7 +137,7 @@ Every binary and source artifact in `dist/` is listed in `SHA256SUMS`.
 sudo apt install -y debhelper cmake g++ golang-go bash-completion \
   qt6-base-dev qt6-declarative-dev qml6-module-qtquick-shapes
 
-dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali6.dsc
+dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali7.dsc
 cd anonsurf-6.0.1+parrot2
 dpkg-buildpackage -us -uc -b
 ```
@@ -154,8 +157,10 @@ fresh machine.
 guard relay but cannot complete the handshake with it — usually a dead guard or
 one on a port blocked by your network. AnonSurf detects a 12-second stall,
 prints `Tor stalled at 10%, rotating guard`, drops the bad guard and builds new
-circuits. If several rotations fail it restarts Tor automatically.
-`FascistFirewall 1` also restricts guards to ports 80/443 to avoid this.
+circuits. If direct relays stay blocked for 20 seconds, it prints
+`Direct Tor relays blocked, switching to bridges` and bootstraps over the
+bundled obfs4 bridges instead. `FascistFirewall 1` is disabled in bridge mode
+so bridges on non-443 ports also work.
 
 **Start succeeds but sites will not load.** Tor can report `100%` bootstrap
 yet fail every stream with `waiting for circuit` if its guard is bad. AnonSurf
