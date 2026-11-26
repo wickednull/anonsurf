@@ -4,7 +4,7 @@
 
 
 [![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
-[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali3-blue)](https://github.com/wickednull/anonsurf/releases)
+[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali4-blue)](https://github.com/wickednull/anonsurf/releases)
 [![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0%2B-green)](LICENSE)
 [![Lintian](https://img.shields.io/badge/lintian-clean-brightgreen)](https://github.com/wickednull/anonsurf/releases)
@@ -33,9 +33,10 @@ proxying, with a kill-switch, transactional rollback, and boot recovery after a 
   Kali's default systemd preset disables all services.
 - **Bootstrap-aware** — DNS is switched to Tor only after Tor finishes
   bootstrapping, so a slow first start never leaves you with a dead resolver.
-- **Stall recovery** — if Tor connects to a relay but stalls at 10%
-  (`conn_done`), it is restarted automatically (up to 3 times), and
-  `FascistFirewall 1` keeps guard selection on commonly reachable ports.
+- **Stall and circuit recovery** — if Tor stalls at 10% (`conn_done`) or
+  reports `100%` bootstrap but has no usable general-purpose circuit, it is
+  restarted automatically (up to 3 times). `FascistFirewall 1` keeps guard
+  selection on commonly reachable ports.
 - **Unprivileged GUI** — the Qt 6/QML interface talks to systemd over D-Bus with
   polkit, rather than running as root.
 - **Clean packaging** — Debian `3.0 (quilt)` source, clean binary and source
@@ -127,7 +128,7 @@ Every binary and source artifact in `dist/` is listed in `SHA256SUMS`.
 sudo apt install -y debhelper cmake g++ golang-go bash-completion \
   qt6-base-dev qt6-declarative-dev qml6-module-qtquick-shapes
 
-dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali3.dsc
+dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali4.dsc
 cd anonsurf-6.0.1+parrot2
 dpkg-buildpackage -us -uc -b
 ```
@@ -149,6 +150,12 @@ one listening on a port blocked by your network. AnonSurf now detects a stall
 at 10% for 60 seconds, prints `Tor bootstrap stalled at 10%, restarting Tor`,
 and tries again with a fresh guard (up to 3 restarts). `FascistFirewall 1` also
 restricts guards to ports 80/443/8080 to avoid this in the first place.
+
+**Start succeeds but sites will not load.** Tor can report `100%` bootstrap
+yet fail every stream with `waiting for circuit` if its guard is bad. AnonSurf
+now checks `circuit-status` over the control port and restarts Tor if no
+general-purpose circuit is built. You may see `Waiting for Tor circuits` or
+`Tor circuits not ready, restarting Tor` before success.
 
 **Browser says `DNS_PROBE_POSSIBLE` while AnonSurf is active.** Disable Secure
 DNS / DNS-over-HTTPS in Chrome or Brave (`chrome://settings/security` or

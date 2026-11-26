@@ -1,7 +1,7 @@
-069eaa774fe932dd3017a0a7bed793aaac224aae58c9a5682471bf16d5c6654b  dist/anonsurf_6.0.1+parrot2-0kali3_amd64.deb
-ea2f0ea27e7e846ec94225a86a56527d05aad6b3c1058ff3a8424693ae275d6e  dist/anonsurf_6.0.1+parrot2-0kali3.debian.tar.xz
-f3277182d6ffc7eda1f9a3cf7b9aad3f80f53d04b495c723ba173996e9488790  dist/anonsurf_6.0.1+parrot2-0kali3.dsc
+15b94f62ddc5929aa19757056d5bcf3a90b68532204269a09d978a8a93ee41ba  dist/anonsurf_6.0.1+parrot2-0kali4_amd64.deb
+d038add435484a6b97a0e6488a67847652d6a912cb57a3bb8adce5b2d8e43c0b  dist/anonsurf_6.0.1+parrot2-0kali4.debian.tar.xz
+e03bccb2b1dd99078c20d0dd132506f556939b4ee204a11452ba915d202248bc  dist/anonsurf_6.0.1+parrot2-0kali4.dsc
 4d8a787703792dddb0541f26806d31b140677da08a69f68e9601d99fc767e41f  dist/anonsurf_6.0.1+parrot2.orig.tar.gz
-214c6676075068fc264d5083f77e43a0b8efa6579a45a0ded9fa3d4bc284e0a1  dist/anonsurf-cli_6.0.1+parrot2-0kali3_amd64.deb
-28adb62b4c428571250161d698cdb0a96f8d4a875c20470b76bced7c0d0540b0  dist/anonsurf-gtk_6.0.1+parrot2-0kali3_all.deb
-d3f9bb1cfb57d8eff6d5ac629de6565f5b1d0043152cad984869aab443b0fdb4  dist/anonsurf-gui_6.0.1+parrot2-0kali3_amd64.deb
+ff335412e63f977fc3561512624f5632a09c6fb3934389d0c224c91f5d4a8424  dist/anonsurf-cli_6.0.1+parrot2-0kali4_amd64.deb
+397dcddd11df2edd852bbab8f6a512f43a82092a5d234d59f5fc0a424fc9154a  dist/anonsurf-gtk_6.0.1+parrot2-0kali4_all.deb
+f873381d67c7b9943ec45f7255e09d4cd19be39356cb8fab185b74d0d683a515  dist/anonsurf-gui_6.0.1+parrot2-0kali4_amd64.deb
