@@ -4,7 +4,7 @@
 
 
 [![Kali Linux](https://img.shields.io/badge/Kali-Rolling-57721B?logo=linux&logoColor=white)](https://www.kali.org/)
-[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali7-blue)](https://github.com/wickednull/anonsurf/releases)
+[![Version](https://img.shields.io/badge/version-6.0.1%2Bparrot2--0kali8-blue)](https://github.com/wickednull/anonsurf/releases)
 [![Architecture](https://img.shields.io/badge/architecture-amd64-lightgrey)](https://github.com/wickednull/anonsurf/releases)
 [![License](https://img.shields.io/badge/license-GPL--3.0%2B-green)](LICENSE)
 [![Lintian](https://img.shields.io/badge/lintian-clean-brightgreen)](https://github.com/wickednull/anonsurf/releases)
@@ -137,7 +137,7 @@ Every binary and source artifact in `dist/` is listed in `SHA256SUMS`.
 sudo apt install -y debhelper cmake g++ golang-go bash-completion \
   qt6-base-dev qt6-declarative-dev qml6-module-qtquick-shapes
 
-dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali7.dsc
+dpkg-source -x dist/anonsurf_6.0.1+parrot2-0kali8.dsc
 cd anonsurf-6.0.1+parrot2
 dpkg-buildpackage -us -uc -b
 ```
@@ -167,6 +167,11 @@ yet fail every stream with `waiting for circuit` if its guard is bad. AnonSurf
 now checks `circuit-status` over the control port and restarts Tor if no
 general-purpose circuit is built. You may see `Waiting for Tor circuits` or
 `Tor circuits not ready, restarting Tor` before success.
+
+**The GUI opens by itself at login.** That is KDE session restore, not
+AnonSurf starting at boot. The GUI now opts out of session restore; if an old
+session still restores it, close the window once before logging out, or clear
+it in **System Settings → Session and Startup**.
 
 **Browser says `DNS_PROBE_POSSIBLE` while AnonSurf is active.** Disable Secure
 DNS / DNS-over-HTTPS in Chrome or Brave (`chrome://settings/security` or
